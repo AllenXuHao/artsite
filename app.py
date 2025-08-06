@@ -62,4 +62,5 @@ def delete_comment(artwork_id, comment_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 10000))  # Render 会传入这个 PORT
+    app.run(host='0.0.0.0', port=port)
