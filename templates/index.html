@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>我的艺术作品网站</title>
+</head>
+<body>
+    <h1>欢迎来到我的艺术作品网站</h1>
+
+    <h2>作品展示：</h2>
+
+    {% for art in artworks %}
+    <div style="margin-bottom: 40px;">
+        <img src="{{ url_for('static', filename='images/' + art.filename) }}" width="400px">
+        <p>作品名称：{{ art.title }}</p>
+
+        <!-- 点赞区域 -->
+        <!-- 点赞区域 -->
+        <button 
+            onclick="toggleLike({{ art.id }})" 
+            id="like-btn-{{ art.id }}"
+        >
+            {% if art.id in liked_ids %}
+                💔 取消点赞 ({{ likes[art.id] }})
+            {% else %}
+                ❤️ 点赞 ({{ likes[art.id] }})
+            {% endif %}
+        </button>
+
+        <h4>评论：</h4>
+        <ul>
+            {% for c in comments[art.id] %}
+                <li>
+                    {{ c.text }}
+                    <!-- 删除按钮 -->
+                    <form method="post" action="{{ url_for('delete_comment', artwork_id=art.id, comment_id=c.id) }}" style="display:inline;">
+                        <button type="submit">🗑 删除</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- 评论提交表单 -->
+        <form method="post">
+            <input type="hidden" name="artwork_id" value="{{ art.id }}">
+            <textarea name="comment" rows="2" cols="40" placeholder="写下你的评论..."></textarea><br>
+            <button type="submit">提交评论</button>
+        </form>
+    </div>
+    <hr>
+    {% endfor %}
+
+    <script>
+    function toggleLike(artworkId) {
+        fetch(`/like/${artworkId}`, {
+            method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const btn = document.getElementById(`like-btn-${artworkId}`);
+        if (data.liked) {
+            btn.innerText = `💔 取消点赞 (${data.likes_count})`;
+        } else {
+            btn.innerText = `❤️ 点赞 (${data.likes_count})`;
+        }
+    })
+    .catch(error => {
+        console.error('点赞失败:', error);
+    });
+}
+</script>
+
+</body>
+</html>
